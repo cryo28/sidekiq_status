@@ -11,8 +11,8 @@ module SidekiqStatus
 
     STATUSES_KEY = 'sidekiq_statuses'.freeze
 
-
-    TTL = 60*60*24*30 # 30 days
+    class_attribute :ttl
+    self.ttl = 60*60*24*30 # 30 days
 
     DEFAULTS = {
         'args'    => [],
@@ -89,7 +89,7 @@ module SidekiqStatus
 
       return {} if keys.empty?
 
-      threshold = Time.now - TTL
+      threshold = Time.now - self.ttl
 
       data = Sidekiq.redis do |conn|
         conn.multi do
@@ -147,7 +147,7 @@ module SidekiqStatus
 
       Sidekiq.redis do |conn|
         conn.multi do
-          conn.setex(status_key, TTL, data)
+          conn.setex(status_key, self.ttl, data)
           conn.zadd(self.class.statuses_key, Time.now.to_f.to_s, self.uuid)
         end
       end

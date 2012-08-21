@@ -118,8 +118,8 @@ describe SidekiqStatus::Container do
     it "cleans up unprocessed expired kill requests as well" do
       Sidekiq.redis do |conn|
         conn.zadd(described_class.kill_key, [
-            [(Time.now - described_class::TTL - 1).to_i, 'a'],
-            [(Time.now - described_class::TTL + 1).to_i, 'b'],
+            [(Time.now - described_class.ttl - 1).to_i, 'a'],
+            [(Time.now - described_class.ttl + 1).to_i, 'b'],
         ]
         )
       end
