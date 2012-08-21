@@ -35,6 +35,57 @@ describe SidekiqStatus::Container do
     described_class.kill_key.should == described_class::KILL_KEY
   end
 
+
+  context "finders" do
+    let!(:containers) do
+      described_class::STATUS_NAMES.inject({}) do |accum, status_name|
+        container = described_class.create('arg1')
+        container.update_attributes(:status => status_name)
+
+        accum[status_name] = container
+        accum
+      end
+    end
+
+    specify ".size" do
+      described_class.size.should == containers.size
+    end
+
+    specify ".status_uuids" do
+      expected = containers.values.map(&:uuid).map{ |uuid| [uuid, anything()] }
+      described_class.status_uuids.should =~ expected
+      described_class.status_uuids(0, 0).size.should == 1
+    end
+
+    specify ".statuses" do
+      described_class.statuses.should be_all{|st| st.is_a?(described_class) }
+      described_class.statuses.size.should == containers.size
+      described_class.statuses(0, 0).size.should == 1
+    end
+
+    describe ".delete" do
+      before do
+        described_class.status_uuids.map(&:first).should =~ containers.values.map(&:uuid)
+      end
+
+      specify "deletes jobs in specific status" do
+        statuses_to_delete = ['waiting', 'complete']
+        described_class.delete(statuses_to_delete)
+
+        described_class.status_uuids.map(&:first).should =~ containers.
+            reject{ |status_name, container|  statuses_to_delete.include?(status_name) }.
+            values.
+            map(&:uuid)
+      end
+
+      specify "deletes jobs in all statuses" do
+        described_class.delete()
+
+        described_class.status_uuids.should be_empty
+      end
+    end
+  end
+
   specify ".create" do
     SecureRandom.should_receive(:uuid).and_return(uuid)
     args = ['arg1', 'arg2', {arg3: 'val3'}]
@@ -69,7 +120,7 @@ describe SidekiqStatus::Container do
         conn.zadd(described_class.kill_key, [
             [(Time.now - described_class::TTL - 1).to_i, 'a'],
             [(Time.now - described_class::TTL + 1).to_i, 'b'],
-          ]
+        ]
         )
       end
 
@@ -118,9 +169,10 @@ describe SidekiqStatus::Container do
     end
   end
 
-  specify "#request_kill, #should_kill?" do
+  specify "#request_kill, #should_kill?, #killable?" do
     container = described_class.new(uuid)
     container.should_kill?.should be_false
+    container.should be_killable
 
     Sidekiq.redis do |conn|
       conn.zscore(described_class.kill_key, uuid).should be_nil
@@ -133,6 +185,7 @@ describe SidekiqStatus::Container do
       conn.zscore(described_class.kill_key, uuid).should == Time.now.to_i
     end
     container.should_kill?.should be_true
+    container.should_not be_killable
   end
 
   specify "#kill" do
@@ -154,6 +207,17 @@ describe SidekiqStatus::Container do
     described_class.load(uuid).status.should == 'killed'
   end
 
+  specify "#pct_complete" do
+    container = described_class.new(uuid)
+    container.at = 1
+    container.total = 100
+    container.pct_complete.should == 1
+
+    container.at = 5
+    container.total = 200
+    container.pct_complete.should == 3 # 2.5.round(0) => 3
+  end
+
   context "setters" do
     let(:container) { described_class.new(uuid) }
 
@@ -163,7 +227,6 @@ describe SidekiqStatus::Container do
         container.at = 3
         container.at.should == 3
         container.total.should == 100
-
       end
 
       it "raises ArgumentError otherwise" do
