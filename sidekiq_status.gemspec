@@ -4,9 +4,9 @@ require File.expand_path('../lib/sidekiq_status/version', __FILE__)
 Gem::Specification.new do |gem|
   gem.authors       = ["Artem Ignatyev"]
   gem.email         = ["cryo28@gmail.com"]
-  gem.description   = %q{TODO: Write a gem description}
-  gem.summary       = %q{TODO: Write a gem summary}
-  gem.homepage      = ""
+  gem.description   = "Job status tracking extension for Sidekiq"
+  gem.summary       = "A Sidekiq extension to track job execution statuses and return job results back to the client in a convenient manner"
+  gem.homepage      = "https://github.com/cryo28/sidekiq_status"
 
   gem.files         = `git ls-files`.split($\)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }

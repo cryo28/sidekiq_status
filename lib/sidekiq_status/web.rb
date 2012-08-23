@@ -52,4 +52,5 @@ module SidekiqStatus
   end
 end
 
+require 'sidekiq/web'
 Sidekiq::Web.extend(SidekiqStatus::Web)
