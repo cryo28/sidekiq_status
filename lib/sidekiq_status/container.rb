@@ -170,7 +170,7 @@ module SidekiqStatus
       end
     end
 
-    def should_kill?
+    def kill_requested?
       Sidekiq.redis do |conn|
         conn.zrank(self.class.kill_key, self.uuid)
       end
@@ -187,12 +187,12 @@ module SidekiqStatus
       end
     end
 
-    def pct_complete
-      (at.to_f / total * 100).round
+    def killable?
+      !kill_requested? && %w(waiting working).include?(self.status)
     end
 
-    def killable?
-      !should_kill? && %w(waiting working).include?(self.status)
+    def pct_complete
+      (at.to_f / total * 100).round
     end
 
     def at=(at)
@@ -225,6 +225,12 @@ module SidekiqStatus
     def update_attributes(attrs = {})
       self.attributes = attrs
       save
+    end
+
+    STATUS_NAMES.each do |status_name|
+      define_method("#{status_name}?") do
+        status == status_name
+      end
     end
   end
 end

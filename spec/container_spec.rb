@@ -171,7 +171,7 @@ describe SidekiqStatus::Container do
 
   specify "#request_kill, #should_kill?, #killable?" do
     container = described_class.new(uuid)
-    container.should_kill?.should be_false
+    container.kill_requested?.should be_false
     container.should be_killable
 
     Sidekiq.redis do |conn|
@@ -184,7 +184,7 @@ describe SidekiqStatus::Container do
     Sidekiq.redis do |conn|
       conn.zscore(described_class.kill_key, uuid).should == Time.now.to_i
     end
-    container.should_kill?.should be_true
+    container.should be_kill_requested
     container.should_not be_killable
   end
 
@@ -290,6 +290,20 @@ describe SidekiqStatus::Container do
       reloaded_container.status.should == 'working'
 
       expect{ container.update_attributes(:at => 'Invalid') }.to raise_exception(ArgumentError)
+    end
+  end
+
+  context "predicates" do
+    described_class::STATUS_NAMES.each do |status_name1|
+      context "status is #{status_name1}" do
+        subject{ described_class.create().tap{|c| c.status = status_name1} }
+
+        its("#{status_name1}?") { should be_true }
+
+        (described_class::STATUS_NAMES - [status_name1]).each do |status_name2|
+          its("#{status_name2}?") { should be_false }
+        end
+      end
     end
   end
 end

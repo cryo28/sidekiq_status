@@ -38,7 +38,7 @@ module SidekiqStatus
 
     module InstanceMethods
       def status_container
-        kill if @status_container.should_kill?
+        kill if @status_container.kill_requested?
         @status_container
       end
       alias_method :sc, :status_container
