@@ -1,6 +1,6 @@
 # SidekiqStatus
 
-A Sidekiq extension to track job execution statuses and returning job results back to the client in a convenient manner
+Sidekiq extension to track job execution statuses and returning job results back to the client in a convenient manner
 
 ## Installation
 

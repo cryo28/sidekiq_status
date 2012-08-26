@@ -1,5 +1,10 @@
 module SidekiqStatus
+  # Hook into *Sidekiq::Web* Sinatra app which adds a new "/statuses" page
   module Web
+    # A ruby module hook to treat the included code as if it was defined inside Sidekiq::Web.
+    # Thus it extends Sidekiq::Web Sinatra application
+    #
+    # @param [Sidekiq::Web] target
     def self.extend_object(target)
       target.class_eval do
         # Calls the given block for every possible template file in views,

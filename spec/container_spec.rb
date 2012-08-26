@@ -138,7 +138,7 @@ describe SidekiqStatus::Container do
   specify "#dump" do
     hash = sample_json_hash.reject{ |k, v| k == 'last_updated_at' }
     container = described_class.new(uuid, hash)
-    dump = container.dump
+    dump = container.send(:dump)
     dump.should == hash.merge('last_updated_at' => Time.now.to_i)
   end
 
