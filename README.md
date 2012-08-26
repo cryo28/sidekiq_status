@@ -1,5 +1,7 @@
 # SidekiqStatus
 
+[![Build Status](https://secure.travis-ci.org/cryo28/sidekiq_status.png)](http://travis-ci.org/cryo28/sidekiq_status)
+
 Sidekiq extension to track job execution statuses and returning job results back to the client in a convenient manner
 
 ## Installation
