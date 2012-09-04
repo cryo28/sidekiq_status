@@ -16,11 +16,15 @@ describe SidekiqStatus::Container do
   let(:status_key) { described_class.status_key(jid) }
   let(:sample_json_hash) do
     {
+        'args'            => ['arg1', 'arg2'],
+        'worker'          => 'SidekiqStatus::Worker',
+        'queue'           => '',
+
         'status'          => "completed",
         'at'              => 50,
         'total'           => 200,
         'message'         => "Some message",
-        'args'            => ['arg1', 'arg2'],
+
         'payload'         => {},
         'last_updated_at' => 1344855831
     }
@@ -39,7 +43,7 @@ describe SidekiqStatus::Container do
   context "finders" do
     let!(:containers) do
       described_class::STATUS_NAMES.inject({}) do |accum, status_name|
-        container = described_class.create('arg1')
+        container = described_class.create()
         container.update_attributes(:status => status_name)
 
         accum[status_name] = container
@@ -90,7 +94,7 @@ describe SidekiqStatus::Container do
     SecureRandom.should_receive(:base64).and_return(jid)
     args = ['arg1', 'arg2', {arg3: 'val3'}]
 
-    container = described_class.create(*args)
+    container = described_class.create('args' => args)
     container.should be_a(described_class)
     container.args.should == args
 

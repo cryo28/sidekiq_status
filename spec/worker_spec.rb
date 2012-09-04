@@ -13,35 +13,13 @@ describe Sidekiq::Worker do
 
   let(:args) { ['arg1', 'arg2', {'arg3' => 'val3'}]}
 
-  describe ".perform_async (Client context)" do
-    it "pushes a new job to queue and returns its jid" do
+  describe ".perform_async" do
+    it "invokes middleware which creates sidekiq_status container with the same jid" do
       jid = SomeWorker.perform_async(*args)
       jid.should be_a(String)
 
       container = SidekiqStatus::Container.load(jid)
       container.args.should == args
-    end
-
-    it "proxies the #perform_async call to Sidekiq::Worker with jid as only argument" do
-      jid = 'SomeBase64JobId0000001=='
-      SecureRandom.stub(:base64).and_return(jid)
-
-      SomeWorker.should_receive(:client_push) do |client_push_args|
-        enqueued_args = client_push_args['args']
-        enqueued_args.should == [jid]
-      end
-
-      SomeWorker.perform_async(*args)
-    end
-
-    it "returns false and deletes container from redis if some middleware rejects job" do
-      Sidekiq.redis{ |conn| conn.zcard(SidekiqStatus::Container.statuses_key).should == 0 }
-      Sidekiq::Client.should_receive(:push).and_return(false)
-
-      jid = SomeWorker.perform_async(*args)
-      jid.should be_false
-
-      Sidekiq.redis{ |conn| conn.zcard(SidekiqStatus::Container.statuses_key).should == 0 }
     end
   end
 

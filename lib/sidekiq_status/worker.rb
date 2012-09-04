@@ -5,7 +5,6 @@ module SidekiqStatus
       base.class_eval do
         include Sidekiq::Worker
 
-        extend(ClassMethods)
         include(InstanceMethods)
 
         base.define_singleton_method(:new) do |*args, &block|
@@ -59,19 +58,6 @@ module SidekiqStatus
 
       def payload=(payload)
         self.sc.update_attributes('payload' => payload)
-      end
-    end
-
-    module ClassMethods
-      def perform_async(*args)
-        status_container = SidekiqStatus::Container.create(*args)
-
-        jid = super(*status_container.jid)
-
-        return status_container.jid if jid
-
-        status_container.delete
-        jid
       end
     end
   end
