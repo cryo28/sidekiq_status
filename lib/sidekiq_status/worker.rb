@@ -8,16 +8,11 @@ module SidekiqStatus
         extend(ClassMethods)
         include(InstanceMethods)
 
-        #extend Forwardable
-        #def_delegators :status_container, :at=, :total=, :status=, :message=, :payload=
-
         base.define_singleton_method(:new) do |*args, &block|
           super(*args, &block).extend(Prepending)
         end
       end
     end
-
-
 
     module Prepending
       def perform(uuid)
@@ -71,12 +66,12 @@ module SidekiqStatus
       def perform_async(*args)
         status_container = SidekiqStatus::Container.create(*args)
 
-        is_enqueued = super(*status_container.uuid)
+        jid = super(*status_container.uuid)
 
-        return status_container.uuid if is_enqueued
+        return status_container.uuid if jid
 
         status_container.delete
-        is_enqueued
+        jid
       end
     end
   end

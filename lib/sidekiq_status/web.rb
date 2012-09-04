@@ -14,6 +14,8 @@ module SidekiqStatus
           super
         end
 
+        tabs << 'Statuses'
+
         get '/statuses' do
           @count = (params[:count] || 25).to_i
 
@@ -52,6 +54,8 @@ module SidekiqStatus
           SidekiqStatus::Container.delete(SidekiqStatus::Container::FINISHED_STATUS_NAMES)
           redirect to(:statuses)
         end
+
+
       end
     end
   end
