@@ -30,13 +30,13 @@ module SidekiqStatus
           slim :statuses
         end
 
-        get '/statuses/:uuid' do
-          @status = SidekiqStatus::Container.load(params[:uuid])
+        get '/statuses/:jid' do
+          @status = SidekiqStatus::Container.load(params[:jid])
           slim :status
         end
 
-        get '/statuses/:uuid/kill' do
-          SidekiqStatus::Container.load(params[:uuid]).request_kill
+        get '/statuses/:jid/kill' do
+          SidekiqStatus::Container.load(params[:jid]).request_kill
           redirect to(:statuses)
         end
 

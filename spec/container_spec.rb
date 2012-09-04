@@ -1,19 +1,19 @@
 # -*- encoding : utf-8 -*-
 require 'spec_helper'
 
-def test_container(container, hash, uuid = nil)
+def test_container(container, hash, jid = nil)
   hash.reject { |k, v| k == :last_updated_at }.find do |k, v|
     container.send(k).should == v
   end
 
   container.last_updated_at.should == Time.at(hash['last_updated_at']) if hash['last_updated_at']
-  container.uuid.should == uuid if uuid
+  container.jid.should == jid if jid
 end
 
 
 describe SidekiqStatus::Container do
-  let(:uuid) { "9a99fa87-0d95-47f4-87af-f381232e9f9d" }
-  let(:status_key) { described_class.status_key(uuid) }
+  let(:jid) { "SomeBase64JobId0000000==" }
+  let(:status_key) { described_class.status_key(jid) }
   let(:sample_json_hash) do
     {
         'status'          => "completed",
@@ -27,8 +27,8 @@ describe SidekiqStatus::Container do
   end
 
   specify ".status_key" do
-    uuid = SecureRandom.uuid
-    described_class.status_key(uuid).should == "sidekiq_status:#{uuid}"
+    jid = SecureRandom.base64
+    described_class.status_key(jid).should == "sidekiq_status:#{jid}"
   end
 
   specify ".kill_key" do
@@ -51,10 +51,10 @@ describe SidekiqStatus::Container do
       described_class.size.should == containers.size
     end
 
-    specify ".status_uuids" do
-      expected = containers.values.map(&:uuid).map{ |uuid| [uuid, anything()] }
-      described_class.status_uuids.should =~ expected
-      described_class.status_uuids(0, 0).size.should == 1
+    specify ".status_jids" do
+      expected = containers.values.map(&:jid).map{ |jid| [jid, anything()] }
+      described_class.status_jids.should =~ expected
+      described_class.status_jids(0, 0).size.should == 1
     end
 
     specify ".statuses" do
@@ -65,29 +65,29 @@ describe SidekiqStatus::Container do
 
     describe ".delete" do
       before do
-        described_class.status_uuids.map(&:first).should =~ containers.values.map(&:uuid)
+        described_class.status_jids.map(&:first).should =~ containers.values.map(&:jid)
       end
 
       specify "deletes jobs in specific status" do
         statuses_to_delete = ['waiting', 'complete']
         described_class.delete(statuses_to_delete)
 
-        described_class.status_uuids.map(&:first).should =~ containers.
+        described_class.status_jids.map(&:first).should =~ containers.
             reject{ |status_name, container|  statuses_to_delete.include?(status_name) }.
             values.
-            map(&:uuid)
+            map(&:jid)
       end
 
       specify "deletes jobs in all statuses" do
         described_class.delete()
 
-        described_class.status_uuids.should be_empty
+        described_class.status_jids.should be_empty
       end
     end
   end
 
   specify ".create" do
-    SecureRandom.should_receive(:uuid).and_return(uuid)
+    SecureRandom.should_receive(:base64).and_return(jid)
     args = ['arg1', 'arg2', {arg3: 'val3'}]
 
     container = described_class.create(*args)
@@ -95,7 +95,7 @@ describe SidekiqStatus::Container do
     container.args.should == args
 
     # Check default values are set
-    test_container(container, described_class::DEFAULTS.reject{|k, v| k == 'args' }, uuid)
+    test_container(container, described_class::DEFAULTS.reject{|k, v| k == 'args' }, jid)
 
     Sidekiq.redis do |conn|
       conn.exists(status_key).should be_true
@@ -104,15 +104,15 @@ describe SidekiqStatus::Container do
 
   describe ".load" do
     it "raises StatusNotFound exception if status is missing in Redis" do
-      expect { described_class.load(uuid) }.to raise_exception(described_class::StatusNotFound, uuid)
+      expect { described_class.load(jid) }.to raise_exception(described_class::StatusNotFound, jid)
     end
 
     it "loads a container from the redis key" do
       json = MultiJson.dump(sample_json_hash)
       Sidekiq.redis { |conn| conn.set(status_key, json) }
 
-      container = described_class.load(uuid)
-      test_container(container, sample_json_hash, uuid)
+      container = described_class.load(jid)
+      test_container(container, sample_json_hash, jid)
     end
 
     it "cleans up unprocessed expired kill requests as well" do
@@ -126,7 +126,7 @@ describe SidekiqStatus::Container do
 
       json = MultiJson.dump(sample_json_hash)
       Sidekiq.redis { |conn| conn.set(status_key, json) }
-      described_class.load(uuid)
+      described_class.load(jid)
 
       Sidekiq.redis do |conn|
         conn.zscore(described_class.kill_key, 'a').should be_nil
@@ -137,14 +137,14 @@ describe SidekiqStatus::Container do
 
   specify "#dump" do
     hash = sample_json_hash.reject{ |k, v| k == 'last_updated_at' }
-    container = described_class.new(uuid, hash)
+    container = described_class.new(jid, hash)
     dump = container.send(:dump)
     dump.should == hash.merge('last_updated_at' => Time.now.to_i)
   end
 
   specify "#save saves container to Redis" do
     hash = sample_json_hash.reject{ |k, v| k == 'last_updated_at' }
-    described_class.new(uuid, hash).save
+    described_class.new(jid, hash).save
 
     result = Sidekiq.redis{ |conn| conn.get(status_key) }
     result = MultiJson.load(result)
@@ -157,42 +157,42 @@ describe SidekiqStatus::Container do
   specify "#delete" do
     Sidekiq.redis do |conn|
       conn.set(status_key, "something")
-      conn.zadd(described_class.kill_key, 0, uuid)
+      conn.zadd(described_class.kill_key, 0, jid)
     end
 
-    container = described_class.new(uuid)
+    container = described_class.new(jid)
     container.delete
 
     Sidekiq.redis do |conn|
       conn.exists(status_key).should be_false
-      conn.zscore(described_class.kill_key, uuid).should be_nil
+      conn.zscore(described_class.kill_key, jid).should be_nil
     end
   end
 
   specify "#request_kill, #should_kill?, #killable?" do
-    container = described_class.new(uuid)
+    container = described_class.new(jid)
     container.kill_requested?.should be_false
     container.should be_killable
 
     Sidekiq.redis do |conn|
-      conn.zscore(described_class.kill_key, uuid).should be_nil
+      conn.zscore(described_class.kill_key, jid).should be_nil
     end
 
 
     container.request_kill
 
     Sidekiq.redis do |conn|
-      conn.zscore(described_class.kill_key, uuid).should == Time.now.to_i
+      conn.zscore(described_class.kill_key, jid).should == Time.now.to_i
     end
     container.should be_kill_requested
     container.should_not be_killable
   end
 
   specify "#kill" do
-    container = described_class.new(uuid)
+    container = described_class.new(jid)
     container.request_kill
     Sidekiq.redis do |conn|
-      conn.zscore(described_class.kill_key, uuid).should == Time.now.to_i
+      conn.zscore(described_class.kill_key, jid).should == Time.now.to_i
     end
     container.status.should_not == 'killed'
 
@@ -200,15 +200,15 @@ describe SidekiqStatus::Container do
     container.kill
 
     Sidekiq.redis do |conn|
-      conn.zscore(described_class.kill_key, uuid).should be_nil
+      conn.zscore(described_class.kill_key, jid).should be_nil
     end
 
     container.status.should == 'killed'
-    described_class.load(uuid).status.should == 'killed'
+    described_class.load(jid).status.should == 'killed'
   end
 
   specify "#pct_complete" do
-    container = described_class.new(uuid)
+    container = described_class.new(jid)
     container.at = 1
     container.total = 100
     container.pct_complete.should == 1
@@ -219,7 +219,7 @@ describe SidekiqStatus::Container do
   end
 
   context "setters" do
-    let(:container) { described_class.new(uuid) }
+    let(:container) { described_class.new(jid) }
 
     describe "#at=" do
       it "sets numeric value" do
@@ -282,7 +282,7 @@ describe SidekiqStatus::Container do
 
     specify "update_attributes" do
       container.update_attributes(:at => 1, 'total' => 3, :message => 'msg', 'status' => 'working')
-      reloaded_container = described_class.load(container.uuid)
+      reloaded_container = described_class.load(container.jid)
 
       reloaded_container.at.should == 1
       reloaded_container.total.should == 3

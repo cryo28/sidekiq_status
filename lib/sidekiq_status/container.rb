@@ -34,14 +34,14 @@ module SidekiqStatus
         'payload' => {}
     }.freeze
 
-    attr_reader :uuid
+    attr_reader :jid
     attr_reader :args, :status, :at, :total, :message, :last_updated_at
     attr_accessor :payload
 
-    # @param [#to_s] uuid SidekiqStatus job id
+    # @param [#to_s] jid SidekiqStatus job id
     # @return [String] redis key to store/fetch {SidekiqStatus::Container} for the given job
-    def self.status_key(uuid)
-      "sidekiq_status:#{uuid}"
+    def self.status_key(jid)
+      "sidekiq_status:#{jid}"
     end
 
     # @return [String] Redis SortedSet key to track existing {SidekiqStatus} jobs
@@ -70,9 +70,9 @@ module SidekiqStatus
     #
     # @param [Integer] start
     # @param [Integer] stop
-    # @return [Array<[String,uuid]>] Array of hash-like arrays of job id => last_updated_at (unixtime) pairs
+    # @return [Array<[String,jid]>] Array of hash-like arrays of job id => last_updated_at (unixtime) pairs
     # @see *Redis#zrange* for details on return values format
-    def self.status_uuids(start = 0, stop = -1)
+    def self.status_jids(start = 0, stop = -1)
       Sidekiq.redis do |conn|
         conn.zrange(self.statuses_key, start, stop, :with_scores => true)
       end
@@ -85,9 +85,9 @@ module SidekiqStatus
     # @param [Integer] stop
     # @return [Array<SidekiqStatus::Container>]
     def self.statuses(start = 0, stop = -1)
-      uuids = status_uuids(start, stop)
-      uuids = Hash[uuids].keys
-      load_multi(uuids)
+      jids = status_jids(start, stop)
+      jids = Hash[jids].keys
+      load_multi(jids)
     end
 
     # @return [Integer] Known {SidekiqStatus} jobs amount
@@ -97,52 +97,52 @@ module SidekiqStatus
       end
     end
 
-    # Create (initialize, generate unique uuid and save) a new {SidekiqStatus} job with given arguments.
+    # Create (initialize, generate unique jid and save) a new {SidekiqStatus} job with given arguments.
     #
     # @param [*Object] args Job arguments
     # @return [SidekiqStatus::Container]
     def self.create(*args)
-      new(SecureRandom.uuid, 'args' => args).tap(&:save)
+      new(SecureRandom.base64, 'args' => args).tap(&:save)
     end
 
     # Load {SidekiqStatus::Container} by job identifier
     #
-    # @param [String] uuid job identifier
-    # @raise [StatusNotFound] if there's no info about {SidekiqStatus} job with given *uuid*
+    # @param [String] jid job identifier
+    # @raise [StatusNotFound] if there's no info about {SidekiqStatus} job with given *jid*
     # @return [SidekiqStatus::Container]
-    def self.load(uuid)
-      data = load_data(uuid)
-      new(uuid, data)
+    def self.load(jid)
+      data = load_data(jid)
+      new(jid, data)
     end
 
     # Load a list of {SidekiqStatus::Container SidekiqStatus jobs} from Redis
     #
-    # @param [Array<String>] uuids A list of job identifiers to load
+    # @param [Array<String>] jids A list of job identifiers to load
     # @return [Array<SidekiqStatus::Container>>]
-    def self.load_multi(uuids)
-      data = load_data_multi(uuids)
-      data.map do |uuid, data|
-        new(uuid, data)
+    def self.load_multi(jids)
+      data = load_data_multi(jids)
+      data.map do |jid, data|
+        new(jid, data)
       end
     end
 
     # Load {SidekiqStatus::Container SidekiqStatus job} {SidekiqStatus::Container#dump serialized data} from Redis
     #
-    # @param [String] uuid job identifier
-    # @raise [StatusNotFound] if there's no info about {SidekiqStatus} job with given *uuid*
+    # @param [String] jid job identifier
+    # @raise [StatusNotFound] if there's no info about {SidekiqStatus} job with given *jid*
     # @return [Hash] Job container data (as parsed json, but container is not yet initialized)
-    def self.load_data(uuid)
-      load_data_multi([uuid])[uuid] or raise StatusNotFound.new(uuid.to_s)
+    def self.load_data(jid)
+      load_data_multi([jid])[jid] or raise StatusNotFound.new(jid.to_s)
     end
 
     # Load multiple {SidekiqStatus::Container SidekiqStatus job} {SidekiqStatus::Container#dump serialized data} from Redis
     #
     # As this method is the most frequently used one, it also contains expire job clean up logic
     #
-    # @param [Array<#to_s>] uuids a list of job identifiers to load data for
+    # @param [Array<#to_s>] jids a list of job identifiers to load data for
     # @return [Hash{String => Hash}] A hash of job-id to deserialized data pairs
-    def self.load_data_multi(uuids)
-      keys = uuids.map{ |uuid| status_key(uuid) }
+    def self.load_data_multi(jids)
+      keys = jids.map{ |jid| status_key(jid) }
 
       return {} if keys.empty?
 
@@ -161,21 +161,21 @@ module SidekiqStatus
         json ? Sidekiq.load_json(json) : nil
       end
 
-      Hash[uuids.zip(data)]
+      Hash[jids.zip(data)]
     end
 
     # Initialize a new {SidekiqStatus::Container} with given unique job identifier and attribute data
     #
-    # @param [String] uuid
+    # @param [String] jid
     # @param [Hash] data
-    def initialize(uuid, data = {})
-      @uuid = uuid
+    def initialize(jid, data = {})
+      @jid = jid
       load(data)
     end
 
     # Reload current container data from JSON (in case they've changed)
     def reload
-      data = self.class.load_data(uuid)
+      data = self.class.load_data(jid)
       load(data)
       self
     end
@@ -183,7 +183,7 @@ module SidekiqStatus
     # @return [String] redis key to store current {SidekiqStatus::Container container}
     #   {SidekiqStatus::Container#dump data}
     def status_key
-      self.class.status_key(uuid)
+      self.class.status_key(jid)
     end
 
     # Save current container attribute values to redis
@@ -194,7 +194,7 @@ module SidekiqStatus
       Sidekiq.redis do |conn|
         conn.multi do
           conn.setex(status_key, self.ttl, data)
-          conn.zadd(self.class.statuses_key, Time.now.to_f.to_s, self.uuid)
+          conn.zadd(self.class.statuses_key, Time.now.to_f.to_s, self.jid)
         end
       end
     end
@@ -205,8 +205,8 @@ module SidekiqStatus
         conn.multi do
           conn.del(status_key)
 
-          conn.zrem(self.class.kill_key, self.uuid)
-          conn.zrem(self.class.statuses_key, self.uuid)
+          conn.zrem(self.class.kill_key, self.jid)
+          conn.zrem(self.class.statuses_key, self.jid)
         end
       end
     end
@@ -215,14 +215,14 @@ module SidekiqStatus
     # which parameters are tracked by the current {SidekiqStatus::Container}
     def request_kill
       Sidekiq.redis do |conn|
-        conn.zadd(self.class.kill_key, Time.now.to_f.to_s, self.uuid)
+        conn.zadd(self.class.kill_key, Time.now.to_f.to_s, self.jid)
       end
     end
 
     # @return [Boolean] if job kill is requested
     def kill_requested?
       Sidekiq.redis do |conn|
-        conn.zrank(self.class.kill_key, self.uuid)
+        conn.zrank(self.class.kill_key, self.jid)
       end
     end
 
@@ -233,7 +233,7 @@ module SidekiqStatus
       Sidekiq.redis do |conn|
         conn.multi do
           save
-          conn.zrem(self.class.kill_key, self.uuid)
+          conn.zrem(self.class.kill_key, self.jid)
         end
       end
     end

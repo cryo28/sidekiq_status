@@ -14,21 +14,21 @@ describe Sidekiq::Worker do
   let(:args) { ['arg1', 'arg2', {'arg3' => 'val3'}]}
 
   describe ".perform_async (Client context)" do
-    it "pushes a new job to queue and returns its uuid" do
-      uuid = SomeWorker.perform_async(*args)
-      uuid.should be_a(String)
+    it "pushes a new job to queue and returns its jid" do
+      jid = SomeWorker.perform_async(*args)
+      jid.should be_a(String)
 
-      container = SidekiqStatus::Container.load(uuid)
+      container = SidekiqStatus::Container.load(jid)
       container.args.should == args
     end
 
-    it "proxies the #perform_async call to Sidekiq::Worker with uuid as only argument" do
-      uuid = SecureRandom.uuid
-      SecureRandom.stub(:uuid).and_return(uuid)
+    it "proxies the #perform_async call to Sidekiq::Worker with jid as only argument" do
+      jid = 'SomeBase64JobId0000001=='
+      SecureRandom.stub(:base64).and_return(jid)
 
       SomeWorker.should_receive(:client_push) do |client_push_args|
         enqueued_args = client_push_args['args']
-        enqueued_args.should == [uuid]
+        enqueued_args.should == [jid]
       end
 
       SomeWorker.perform_async(*args)
@@ -38,8 +38,8 @@ describe Sidekiq::Worker do
       Sidekiq.redis{ |conn| conn.zcard(SidekiqStatus::Container.statuses_key).should == 0 }
       Sidekiq::Client.should_receive(:push).and_return(false)
 
-      uuid = SomeWorker.perform_async(*args)
-      uuid.should be_false
+      jid = SomeWorker.perform_async(*args)
+      jid.should be_false
 
       Sidekiq.redis{ |conn| conn.zcard(SidekiqStatus::Container.statuses_key).should == 0 }
     end
@@ -48,10 +48,10 @@ describe Sidekiq::Worker do
   describe "#perform (Worker context)" do
     let(:worker) { SomeWorker.new }
 
-    it "receives uuid as parameters, loads container and runs original perform with enqueued args" do
+    it "receives jid as parameters, loads container and runs original perform with enqueued args" do
       worker.should_receive(:some_method).with(*args)
-      uuid = SomeWorker.perform_async(*args)
-      worker.perform(uuid)
+      jid = SomeWorker.perform_async(*args)
+      worker.perform(jid)
     end
 
     it "changes status to working" do
@@ -63,8 +63,8 @@ describe Sidekiq::Worker do
         end
       end)
 
-      uuid = SomeWorker.perform_async(*args)
-      worker.perform(uuid)
+      jid = SomeWorker.perform_async(*args)
+      worker.perform(jid)
 
       has_been_run.should be_true
       worker.status_container.reload.status.should == 'complete'
@@ -74,36 +74,36 @@ describe Sidekiq::Worker do
       exc = RuntimeError.new('Some error')
       worker.stub(:some_method).and_raise(exc)
 
-      uuid = SomeWorker.perform_async(*args)
+      jid = SomeWorker.perform_async(*args)
 
-      expect{ worker.perform(uuid) }.to raise_exception(exc)
+      expect{ worker.perform(jid) }.to raise_exception(exc)
 
-      container = SidekiqStatus::Container.load(uuid)
+      container = SidekiqStatus::Container.load(jid)
       container.status.should == 'failed'
     end
 
     it "sets status to 'complete' if finishes without errors" do
-      uuid = SomeWorker.perform_async(*args)
-      worker.perform(uuid)
+      jid = SomeWorker.perform_async(*args)
+      worker.perform(jid)
 
-      container = SidekiqStatus::Container.load(uuid)
+      container = SidekiqStatus::Container.load(jid)
       container.status.should == 'complete'
     end
 
     it "handles kill requests if kill requested before job execution" do
-      uuid = SomeWorker.perform_async(*args)
-      container = SidekiqStatus::Container.load(uuid)
+      jid = SomeWorker.perform_async(*args)
+      container = SidekiqStatus::Container.load(jid)
       container.request_kill
 
-      worker.perform(uuid)
+      worker.perform(jid)
 
       container.reload
       container.status.should == 'killed'
     end
 
     it "handles kill requests if kill requested amid job execution" do
-      uuid = SomeWorker.perform_async(*args)
-      container = SidekiqStatus::Container.load(uuid)
+      jid = SomeWorker.perform_async(*args)
+      container = SidekiqStatus::Container.load(jid)
       container.status.should == 'waiting'
 
       i = 0
@@ -121,7 +121,7 @@ describe Sidekiq::Worker do
         end
       end)
 
-      worker_thread = Thread.new{ worker.perform(uuid) }
+      worker_thread = Thread.new{ worker.perform(jid) }
 
 
       killer_thread = Thread.new do
@@ -139,8 +139,8 @@ describe Sidekiq::Worker do
     end
 
     it "allows to set at, total and customer payload from the worker" do
-      uuid = SomeWorker.perform_async(*args)
-      container = SidekiqStatus::Container.load(uuid)
+      jid = SomeWorker.perform_async(*args)
+      container = SidekiqStatus::Container.load(jid)
 
       ready = false
       lets_stop = false
@@ -155,7 +155,7 @@ describe Sidekiq::Worker do
         end
       end)
 
-      worker_thread = Thread.new{ worker.perform(uuid) }
+      worker_thread = Thread.new{ worker.perform(jid) }
       checker_thread = Thread.new do
         sleep(0.01) unless ready
 

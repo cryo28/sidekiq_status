@@ -15,8 +15,8 @@ module SidekiqStatus
     end
 
     module Prepending
-      def perform(uuid)
-        @status_container = SidekiqStatus::Container.load(uuid)
+      def perform(jid)
+        @status_container = SidekiqStatus::Container.load(jid)
 
         begin
           catch(:killed) do
@@ -66,9 +66,9 @@ module SidekiqStatus
       def perform_async(*args)
         status_container = SidekiqStatus::Container.create(*args)
 
-        jid = super(*status_container.uuid)
+        jid = super(*status_container.jid)
 
-        return status_container.uuid if jid
+        return status_container.jid if jid
 
         status_container.delete
         jid
