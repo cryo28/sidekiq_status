@@ -9,7 +9,9 @@ Sidekiq extension to track job execution statuses and returning job results back
 
 Add this line to your application's Gemfile:
 
-    gem 'sidekiq_status'
+```ruby
+gem 'sidekiq_status', :git => 'git@github.com:cryo28/sidekiq_status.git'
+```
 
 And then execute:
 
@@ -21,24 +23,30 @@ And then execute:
 
 Create a status-friendly worker by include SidekiqStatus::Worker module having #perform method with Sidekiq worker-compatible signature:
 
-    class MyWorker
-       include SidekiqStatus::Worker
+```ruby
+class MyWorker
+   include SidekiqStatus::Worker
 
-       def perform(arg1, arg2)
-          # do something
-       end
-    end
+   def perform(arg1, arg2)
+      # do something
+   end
+end
+```
 
 Now you can enqueue some jobs for this worker
 
-    jid = MyWorker.perform_async('val_for_arg1', 'val_for_arg2')
+```ruby
+jid = MyWorker.perform_async('val_for_arg1', 'val_for_arg2')
+```
 
 If a job is rejected by some Client middleware, #perform_async returns false (as it doesn with ordinary Sidekiq worker).
 
 Now, you can easily track the status of the job execution:
 
-     status_container = SidekiqStatus::Container.load(jid)
-     status_container.status # => 'waiting'
+```ruby
+status_container = SidekiqStatus::Container.load(jid)
+status_container.status # => 'waiting'
+```
 
 When a jobs is scheduled its status is *waiting*. As soon sidekiq worker begins job execution its status is changed to *working*.
 If the job successfully finishes (i.e. doesn't raise an unhandled exception) its status is *complete*. Otherwise its status is *failed*.
@@ -48,52 +56,60 @@ If the job successfully finishes (i.e. doesn't raise an unhandled exception) its
 *SidekiqStatus::Container* has some attributes and *SidekiqStatus::Worker* module extends your Worker class with a few methods which allow Worker to leave
 some info for the subsequent fetch by a Client. For example you can notify client of the worker progress via *at* and *total=* methods
 
-    class MyWorker
-       include SidekiqStatus::Worker
+```ruby
+class MyWorker
+   include SidekiqStatus::Worker
 
-       def perform(arg1, arg2)
-          objects = Array.new(200) { 'some_object_to_process' }
-          self.total= objects.count
-          objects.each_with_index do |object, index|
-            at(index, "Processing object #{index}")
-            object.process!
-          end
-       end
-    end
+   def perform(arg1, arg2)
+      objects = Array.new(200) { 'some_object_to_process' }
+      self.total= objects.count
+      objects.each_with_index do |object, index|
+        at(index, "Processing object #{index}")
+        object.process!
+      end
+   end
+end
+```
 
 Lets presume a client refreshes container at the middle of job execution (when it's processing the object number 50):
 
-    container = SidekiqStatus::Container.load(jid) # or container.reload
+```ruby
+container = SidekiqStatus::Container.load(jid) # or container.reload
 
-    container.status       # => 'working'
-    container.at           # => 50
-    container.total        # => 200
-    container.pct_complete # => 25
-    container.message      # => 'Processing object #{50}'
+container.status       # => 'working'
+container.at           # => 50
+container.total        # => 200
+container.pct_complete # => 25
+container.message      # => 'Processing object #{50}'
+```
 
 Also, a job can leave for the client any custom payload. The only requirement is json-serializeability
 
-    class MyWorker
-       include SidekiqStatus::Worker
+```ruby
+class MyWorker
+   include SidekiqStatus::Worker
 
-       def perform(arg1, arg2)
-          objects = Array.new(5) { |i| i }
-          self.total= objects.count
-          result = objects.inject([]) do |accum, object|
-            accum << "result #{object}"
-            accum
-          end
+   def perform(arg1, arg2)
+      objects = Array.new(5) { |i| i }
+      self.total= objects.count
+      result = objects.inject([]) do |accum, object|
+        accum << "result #{object}"
+        accum
+      end
 
-          self.payload= result
-       end
-    end
+      self.payload= result
+   end
+end
+```
 
 
 Then a client can fetch the result payload
 
-   container = SidekiqStatus::Container.load(jid)
-   container.status  # => 'complete'
-   container.payload # => ["result 0", "result 1", "result 2", "result 3", "result 4"]
+```ruby
+container = SidekiqStatus::Container.load(jid)
+container.status  # => 'complete'
+container.payload # => ["result 0", "result 1", "result 2", "result 3", "result 4"]
+```
 
 SidekiqStatus stores all container attributes in a separate redis key until it's explicitly deleted via container.delete method
 or until redis key expires (see SidekiqStatus::Container.ttl class_attribute).
@@ -102,21 +118,23 @@ or until redis key expires (see SidekiqStatus::Container.ttl class_attribute).
 
 Any job which is waiting or working can be killed. A working job is killed at the moment of container access.
 
-    container = SidekiqStatus::Container.load(jid)
-    container.status # => 'working'
-    container.killable? # => true
-    container.should_kill # => false
+```ruby
+container = SidekiqStatus::Container.load(jid)
+container.status # => 'working'
+container.killable? # => true
+container.should_kill # => false
 
-    container.request_kill
+container.request_kill
 
-    container.status # => 'working'
-    container.killable? # => false
-    container.should_kill # => true
+container.status # => 'working'
+container.killable? # => false
+container.should_kill # => true
 
-    sleep(1)
+sleep(1)
 
-    container.reload
-    container.status # => 'killed'
+container.reload
+container.status # => 'killed'
+```
 
 ### Sidekiq web integration
 
@@ -124,7 +142,7 @@ SidekiqStatus also provides an extension to Sidekiq web interface with /statuses
 and clean status containers.
 
    1. Setup Sidekiq web interface according to Sidekiq documentation
-   2. Add "require 'sidekiq_status/web'" beneath "reqyure 'sidekiq/web'"
+   2. Add "require 'sidekiq_status/web'" beneath "require 'sidekiq/web'"
 
 ## Contributing
 
