@@ -1,5 +1,5 @@
 # -*- encoding : utf-8 -*-
 module SidekiqStatus
   # SidekiqStatus version
-  VERSION = "0.0.4"
+  VERSION = "1.0.0"
 end
