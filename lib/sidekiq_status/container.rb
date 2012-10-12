@@ -106,7 +106,7 @@ module SidekiqStatus
     #   @param [String] jid job identifier
     # @overload
     #   @param [Hash] data
-    #   @option data [String] jid (SecureRandom.base64) optional job id to create status container for
+    #   @option data [String] jid (SecureRandom.hex(12)) optional job id to create status container for
     #   @option data [Array]  args job arguments
     #   @option data [String] worker job worker class name
     #   @option data [String] queue job queue
@@ -114,7 +114,7 @@ module SidekiqStatus
     # @return [SidekiqStatus::Container]
     def self.create(data = {})
       jid = data.delete('jid') if data.is_a?(Hash)
-      jid ||= SecureRandom.base64
+      jid ||= SecureRandom.hex(12)
 
       new(jid, data).tap(&:save)
     end

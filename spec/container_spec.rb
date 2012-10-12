@@ -12,7 +12,7 @@ end
 
 
 describe SidekiqStatus::Container do
-  let(:jid) { "SomeBase64JobId0000000==" }
+  let(:jid) { "c2db8b1b460608fb32d76b7a" }
   let(:status_key) { described_class.status_key(jid) }
   let(:sample_json_hash) do
     {
@@ -91,7 +91,7 @@ describe SidekiqStatus::Container do
   end
 
   specify ".create" do
-    SecureRandom.should_receive(:base64).and_return(jid)
+    SecureRandom.should_receive(:hex).with(12).and_return(jid)
     args = ['arg1', 'arg2', {arg3: 'val3'}]
 
     container = described_class.create('args' => args)
