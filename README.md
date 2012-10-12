@@ -31,13 +31,13 @@ Create a status-friendly worker by include SidekiqStatus::Worker module having #
 
 Now you can enqueue some jobs for this worker
 
-    uuid = MyWorker.perform_async('val_for_arg1', 'val_for_arg2')
+    jid = MyWorker.perform_async('val_for_arg1', 'val_for_arg2')
 
 If a job is rejected by some Client middleware, #perform_async returns false (as it doesn with ordinary Sidekiq worker).
 
 Now, you can easily track the status of the job execution:
 
-     status_container = SidekiqStatus::Container.load(uuid)
+     status_container = SidekiqStatus::Container.load(jid)
      status_container.status # => 'waiting'
 
 When a jobs is scheduled its status is *waiting*. As soon sidekiq worker begins job execution its status is changed to *working*.
@@ -63,7 +63,7 @@ some info for the subsequent fetch by a Client. For example you can notify clien
 
 Lets presume a client refreshes container at the middle of job execution (when it's processing the object number 50):
 
-    container = SidekiqStatus::Container.load(uuid) # or container.reload
+    container = SidekiqStatus::Container.load(jid) # or container.reload
 
     container.status       # => 'working'
     container.at           # => 50
@@ -91,7 +91,7 @@ Also, a job can leave for the client any custom payload. The only requirement is
 
 Then a client can fetch the result payload
 
-   container = SidekiqStatus::Container.load(uuid)
+   container = SidekiqStatus::Container.load(jid)
    container.status  # => 'complete'
    container.payload # => ["result 0", "result 1", "result 2", "result 3", "result 4"]
 
@@ -102,7 +102,7 @@ or until redis key expires (see SidekiqStatus::Container.ttl class_attribute).
 
 Any job which is waiting or working can be killed. A working job is killed at the moment of container access.
 
-    container = SidekiqStatus::Container.load(uuid)
+    container = SidekiqStatus::Container.load(jid)
     container.status # => 'working'
     container.killable? # => true
     container.should_kill # => false
