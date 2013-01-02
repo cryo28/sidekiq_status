@@ -14,7 +14,17 @@ module SidekiqStatus
           super
         end
 
-        tabs << 'Statuses'
+        case tabs
+          when Hash
+            # Sidekiq >= 2.5.0
+            tabs['Statuses'] = 'statuses'
+          when Array
+            # Sidekiq < 2.5.0
+            tabs << 'Statuses'
+          else
+            raise ScriptError, 'unexpected Sidekiq::Web.tabs format'
+        end
+
 
         get '/statuses' do
           @count = (params[:count] || 25).to_i
