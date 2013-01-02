@@ -10,7 +10,7 @@ Sidekiq extension to track job execution statuses and returning job results back
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'sidekiq_status', :git => 'git@github.com:cryo28/sidekiq_status.git'
+gem 'sidekiq_status'
 ```
 
 And then execute:
