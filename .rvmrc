@@ -1,1 +1,1 @@
-rvm use 1.9.3-p362-perf@sidekiq_status --create
+rvm use 1.9.3-p374-perf@sidekiq_status --create
