@@ -1,13 +1,14 @@
 # -*- encoding : utf-8 -*-
 require 'bundler'
 Bundler.setup
-
 ENV['RACK_ENV'] = ENV['RAILS_ENV'] = 'test'
+GEM_ROOT = Pathname.new(File.expand_path('../..', __FILE__))
+
 
 require 'simplecov'
-SimpleCov.start
-
-#require 'sidekiq'
+SimpleCov.start do
+  root GEM_ROOT
+end
 
 require 'sidekiq_status'
 require 'sidekiq/util'
@@ -16,12 +17,11 @@ require 'timecop'
 
 Sidekiq.logger.level = Logger::ERROR
 
-require 'sidekiq/redis_connection'
-REDIS = Sidekiq::RedisConnection.create(:url => "redis://localhost/15", :namespace => 'test', :size => 1)
+
+require GEM_ROOT.join('spec/dummy/boot.rb')
 
 RSpec.configure do |c|
   c.before do
-    Sidekiq.redis = REDIS
     Sidekiq.redis{ |conn| conn.flushdb }
   end
 
