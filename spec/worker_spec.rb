@@ -129,7 +129,7 @@ describe Sidekiq::Worker do
           self.at(50, "25% done")
           self.payload = 'some payload'
           ready = true
-          sleep(0.01) unless lets_stop
+          sleep(0.1) unless lets_stop
         end
       end)
 

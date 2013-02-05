@@ -19,8 +19,8 @@ describe SidekiqStatus::Worker do
     begin
       yield(pid)
     ensure
-      Process.kill('USR1', pid)
-      Process.wait(pid, Process::WNOHANG)
+      Process.kill('INT', pid)
+      Process.wait(pid)
     end
   end
 
