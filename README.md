@@ -141,7 +141,7 @@ container.status # => 'killed'
 SidekiqStatus also provides an extension to Sidekiq web interface with /statuses page where you can track and kill jobs
 and clean status containers.
 
-    Setup Sidekiq web interface according to Sidekiq documentation
+   1. Setup Sidekiq web interface according to Sidekiq documentation
    2. Add "require 'sidekiq_status/web'" beneath "require 'sidekiq/web'"
 
 ## Changelog
@@ -170,12 +170,12 @@ and clean status containers.
 
 1. Fork it
 2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Added some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request
-
+3. Don't forget to write specs. Make sure rake spec passes
+4. Commit your changes (`git commit -am 'Added some feature'`)
+5. Push to the branch (`git push origin my-new-feature`)
+6. Create new Pull Request
 
 ## Copyright
 
-SidekiqStatus © 2012 by Artem Ignatyev. SidekiqStatus is licensed under the MIT license
+SidekiqStatus © 2012-2013 by Artem Ignatyev. SidekiqStatus is licensed under the MIT license
 
