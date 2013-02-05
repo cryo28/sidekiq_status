@@ -5,4 +5,4 @@ rvm:
 #  - jruby-19mode # JRuby in 1.9 mode
 #  - rbx-19mode
 # uncomment this line if your project needs to run something other than `rake`:
-# script: bundle exec rspec spec
+script: SHOW_SIDEKIQ=true bundle exec rake
