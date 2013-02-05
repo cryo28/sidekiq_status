@@ -141,8 +141,30 @@ container.status # => 'killed'
 SidekiqStatus also provides an extension to Sidekiq web interface with /statuses page where you can track and kill jobs
 and clean status containers.
 
-   1. Setup Sidekiq web interface according to Sidekiq documentation
+    Setup Sidekiq web interface according to Sidekiq documentation
    2. Add "require 'sidekiq_status/web'" beneath "require 'sidekiq/web'"
+
+## Changelog
+
+### 1.0.2
+
+   * sidekiq 2.7.0 support
+   * sidekiq integration tests
+   * Display progress bar and last message in sidekiq-web tab (leandrocg)
+
+### 1.0.1
+
+   * sidekiq 2.6.x support
+
+### 1.0.0
+
+   * First release
+
+## Roadmap
+
+   * Add some sidekiq-web specs
+
+
 
 ## Contributing
 
