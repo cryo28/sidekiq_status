@@ -30,4 +30,10 @@ RSpec.configure do |c|
       example.call
     end
   end
+
+  def wait(&block)
+    Timeout.timeout(15) do
+      sleep(0.5) while !block.call
+    end
+  end
 end

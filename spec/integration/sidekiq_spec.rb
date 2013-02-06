@@ -9,7 +9,8 @@ describe SidekiqStatus::Worker do
       command,
       :chdir => DUMMY_APP_ROOT,
       :err => :out,
-      :out => log_to
+      :out => log_to,
+      :pgroup => true
     )
   end
 
@@ -19,14 +20,8 @@ describe SidekiqStatus::Worker do
     begin
       yield(pid)
     ensure
-      Process.kill('INT', pid)
+      Process.kill('TERM', -Process.getpgid(pid))
       Process.wait(pid)
-    end
-  end
-
-  def wait(&block)
-    Timeout.timeout(15) do
-      sleep(0.5) while !block.call
     end
   end
 

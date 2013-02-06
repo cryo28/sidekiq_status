@@ -120,7 +120,6 @@ describe Sidekiq::Worker do
       jid = SomeWorker.perform_async(*args)
       container = SidekiqStatus::Container.load(jid)
 
-      ready = false
       lets_stop = false
 
       worker.extend(Module.new do
@@ -128,17 +127,13 @@ describe Sidekiq::Worker do
           self.total=(200)
           self.at(50, "25% done")
           self.payload = 'some payload'
-          ready = true
-          sleep(0.1) unless lets_stop
+          wait{ lets_stop }
         end
       end)
 
       worker_thread = Thread.new{ worker.perform(jid) }
       checker_thread = Thread.new do
-        sleep(0.01) unless ready
-
-        container.reload
-        container.status.should  == 'working'
+        wait{ container.reload.working? }
         container.at.should      == 50
         container.total.should   == 200
         container.message.should == '25% done'
@@ -147,11 +142,11 @@ describe Sidekiq::Worker do
         lets_stop = true
       end
 
-      worker_thread.join(10)
-      checker_thread.join(10)
+      worker_thread.join(15)
+      checker_thread.join(15)
 
-      container.reload
-      container.status.should  == 'complete'
+      wait{ container.reload.complete? }
+
       container.payload.should == 'some payload'
       container.message.should be_nil
     end
