@@ -146,6 +146,11 @@ and clean status containers.
 
 ## Changelog
 
+### 1.0.3
+
+   * Include SidekiqStatus::Web app into Sidekiq::Web app unobtrusively (Peter Fern)
+   * sidekiq 2.8.0 and 2.9.0 support
+
 ### 1.0.2
 
    * sidekiq 2.7.0 support

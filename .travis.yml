@@ -8,9 +8,10 @@ env:
   global:
     - SHOW_SIDEKIQ=true
   matrix:
-    - SIDEKIQ_VERSION="~> 2.5.7"
-    - SIDEKIQ_VERSION="~> 2.6.6"
-    - SIDEKIQ_VERSION="~> 2.7.5"
-    - SIDEKIQ_VERSION="~> 2.8.0"
-    - SIDEKIQ_VERSION="~> 2.9.0"
+    - SIDEKIQ_VERSION="~>2.4.0"
+    - SIDEKIQ_VERSION="~>2.5.4"
+    - SIDEKIQ_VERSION="~>2.6.5"
+    - SIDEKIQ_VERSION="~>2.7.5"
+    - SIDEKIQ_VERSION="~>2.8.0"
+    - SIDEKIQ_VERSION="~>2.9.0"
 script: bundle exec rake
