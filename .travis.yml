@@ -4,5 +4,13 @@ rvm:
   - 1.9.3
 #  - jruby-19mode # JRuby in 1.9 mode
 #  - rbx-19mode
-# uncomment this line if your project needs to run something other than `rake`:
-script: SHOW_SIDEKIQ=true bundle exec rake
+env:
+  global:
+    - SHOW_SIDEKIQ=true
+  matrix:
+    - SIDEKIQ_VERSION="~> 2.5.7"
+    - SIDEKIQ_VERSION="~> 2.6.6"
+    - SIDEKIQ_VERSION="~> 2.7.5"
+    - SIDEKIQ_VERSION="~> 2.8.0"
+    - SIDEKIQ_VERSION="~> 2.9.0"
+script: bundle exec rake
