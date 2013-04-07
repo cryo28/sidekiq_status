@@ -39,7 +39,7 @@ Now you can enqueue some jobs for this worker
 jid = MyWorker.perform_async('val_for_arg1', 'val_for_arg2')
 ```
 
-If a job is rejected by some Client middleware, #perform_async returns false (as it doesn with ordinary Sidekiq worker).
+If a job is rejected by some Client middleware, #perform_async returns false (as it does with ordinary Sidekiq worker).
 
 Now, you can easily track the status of the job execution:
 
