@@ -146,6 +146,10 @@ and clean status containers.
 
 ## Changelog
 
+### 1.0.4
+
+   * Sidekiq 2.10 and 2.11 support  
+
 ### 1.0.3
 
    * Include SidekiqStatus::Web app into Sidekiq::Web app unobtrusively (Peter Fern)
@@ -156,7 +160,7 @@ and clean status containers.
    * sidekiq 2.7.0 support
    * sidekiq integration tests
    * Display progress bar and last message in sidekiq-web tab (leandrocg)
-
+ 
 ### 1.0.1
 
    * sidekiq 2.6.x support
