@@ -14,4 +14,6 @@ env:
     - SIDEKIQ_VERSION="~>2.7.5"
     - SIDEKIQ_VERSION="~>2.8.0"
     - SIDEKIQ_VERSION="~>2.9.0"
+    - SIDEKIQ_VERSION="~>2.10.0"
+    - SIDEKIQ_VERSION="~>2.11.0"
 script: bundle exec rake
