@@ -19,8 +19,9 @@ module SidekiqStatus
       end
 
       app.get '/statuses/:jid' do
+        view_path = File.join(File.expand_path("../../../web", __FILE__), "views")
         @status = SidekiqStatus::Container.load(params[:jid])
-        render(:slim, :status)
+	render(:slim, File.read(File.join(view_path, "status.slim")))
       end
 
       app.get '/statuses/:jid/kill' do
