@@ -1,21 +1,10 @@
 module SidekiqStatus
   # Hook into *Sidekiq::Web* Sinatra app which adds a new "/statuses" page
   module Web
-    # Location of SidekiqStatus::Web view templates
-    VIEW_PATH = File.expand_path('../../../web/views', __FILE__)
-
     # @param [Sidekiq::Web] app
     def self.registered(app)
-      app.helpers do
-        # Calls the given block for every possible template file in views,
-        # named name.ext, where ext is registered on engine.
-        def find_template(views, name, engine, &block)
-          super(VIEW_PATH, name, engine, &block)
-          super
-        end
-      end
-
       app.get '/statuses' do
+        view_path = File.join(File.expand_path("../../../web", __FILE__), "views")
         @count = (params[:count] || 25).to_i
 
         @current_page = (params[:page] || 1).to_i
@@ -26,12 +15,13 @@ module SidekiqStatus
         pageidx = @current_page - 1
         @statuses = SidekiqStatus::Container.statuses(pageidx * @count, (pageidx + 1) * @count)
 
-        render(:slim, :statuses)
+	render(:slim, File.read(File.join(view_path, "statuses.slim")))
       end
 
       app.get '/statuses/:jid' do
+        view_path = File.join(File.expand_path("../../../web", __FILE__), "views")
         @status = SidekiqStatus::Container.load(params[:jid])
-        render(:slim, :status)
+	render(:slim, File.read(File.join(view_path, "status.slim")))
       end
 
       app.get '/statuses/:jid/kill' do
