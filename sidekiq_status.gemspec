@@ -15,7 +15,7 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = SidekiqStatus::VERSION
 
-  gem.add_runtime_dependency("sidekiq", ">= 2.4", "<= 2.12")
+  gem.add_runtime_dependency("sidekiq", ">= 2.4", "<= 2.13")
 
   gem.add_development_dependency("activesupport")
   gem.add_development_dependency("rspec")
