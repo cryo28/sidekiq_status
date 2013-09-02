@@ -10,6 +10,9 @@ SimpleCov.start do
   root GEM_ROOT
 end
 
+require 'coveralls'
+Coveralls.wear!
+
 require 'sidekiq_status'
 require 'sidekiq/util'
 
