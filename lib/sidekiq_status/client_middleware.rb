@@ -3,6 +3,7 @@
 module SidekiqStatus
   class ClientMiddleware
     def call(worker, item, queue)
+      worker = worker.constantize if worker.is_a?(String)
       return yield unless worker < SidekiqStatus::Worker
 
       jid  = item['jid']
