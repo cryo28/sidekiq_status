@@ -2,23 +2,21 @@
 require 'spec_helper'
 
 describe SidekiqStatus::ClientMiddleware do
+  describe "cryo28/sidekiq_status#11 regression" do
+    describe "#call" do
+      before do
+        SidekiqStatus::Container.should_receive(:create).with(hash_including('worker' => 'TestWorker1'))
+      end
 
-  describe "#call" do
+      it "accepts a worker class" do
+        subject.call(TestWorker1, {}, nil) do
+        end
+      end
 
-    #regression for issue #11
-    it "handles worker as a class" do
-       lambda do
-         subject.call(TestWorker1, {}, nil) do
-         end
-       end.should_not raise_error
-    end
-
-    #regression for issue #11
-    it "hadles worker as a string" do
-       lambda do
-         subject.call("TestWorker1", {}, nil) do
-         end
-       end.should_not raise_error
+      it "accepts a worker name string" do
+        subject.call("TestWorker1", {}, nil) do
+        end
+      end
     end
   end
 end

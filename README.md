@@ -146,6 +146,12 @@ and clean status containers.
 
 ## Changelog
 
+### 1.0.5
+
+   * Sidekiq 2.12 and 2.13 support
+   * Allow specifying worker name as a String (gumayunov)
+   * Added ruby 2.0 to travis build matrix
+
 ### 1.0.4
 
    * Sidekiq 2.10 and 2.11 support  

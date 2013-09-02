@@ -2,6 +2,7 @@ language: ruby
 rvm:
   - 1.9.2
   - 1.9.3
+  - 2.0.0
 #  - jruby-19mode # JRuby in 1.9 mode
 #  - rbx-19mode
 env:
@@ -16,4 +17,6 @@ env:
     - SIDEKIQ_VERSION="~>2.9.0"
     - SIDEKIQ_VERSION="~>2.10.0"
     - SIDEKIQ_VERSION="~>2.11.0"
+    - SIDEKIQ_VERSION="~>2.12.0"
+    - SIDEKIQ_VERSION="~>2.13.0"
 script: bundle exec rake
