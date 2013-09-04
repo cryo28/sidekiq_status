@@ -1,6 +1,6 @@
 # SidekiqStatus
 
-[![Build Status](https://secure.travis-ci.org/cryo28/sidekiq_status.png)](http://travis-ci.org/cryo28/sidekiq_status)
+[![Build Status](https://travis-ci.org/cryo28/sidekiq_status.png?branch=master)](https://travis-ci.org/cryo28/sidekiq_status)
 [![Dependency Status](https://gemnasium.com/cryo28/sidekiq_status.png)](https://gemnasium.com/cryo28/sidekiq_status)
 [![Test coverage](https://coveralls.io/repos/cryo28/sidekiq_status/badge.png?branch=master)](https://coveralls.io/r/cryo28/sidekiq_status)
 
