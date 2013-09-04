@@ -1,0 +1,61 @@
+<h1 class="wi">
+  Job <%= @status.jid %> is <%= @status.status %> (<%= @status.pct_complete %>% done)
+</h1>
+<p class="intro"></p>
+
+<div id="status_<%= @status.jid %>" rel="<%= @status.status %>">
+  <h2>Details</h2>
+  <div>
+    <table class="table table-striped table-bordered">
+      <thead>
+        <tr>
+          <th>Attribute</th>
+          <th>Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>jid</td>
+          <td><%= @status.jid %></td>
+        </tr>
+        <tr>
+          <td>status</td>
+          <td><%= @status.status %></td>
+        </tr>
+        <tr>
+          <td>last updated at</td>
+          <td><%= @status.last_updated_at %></td>
+        </tr>
+        <tr>
+          <td>at</td>
+          <td><%= @status.at %></td>
+        </tr>
+        <tr>
+          <td>total</td>
+          <td><%= @status.total %></td>
+        </tr>
+        <tr>
+          <td>message</td>
+          <td><%= @status.message %></td>
+        </tr>
+        <tr>
+          <td>payload</td>
+          <td>
+            <code class="prettyprint" language="javascript">
+              <%= @status.payload.to_json %>
+            </code>
+          </td>
+        </tr>
+        <tr>
+          <td>job args</td>
+          <td>
+            <code class="prettyprint" language="javascript">
+              <%= @status.args.to_json %>
+            </code>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <a href="<%= to(:statuses) %>">Back</a>
+  </div>
+</div>

@@ -7,11 +7,9 @@ module SidekiqStatus
     # @param [Sidekiq::Web] app
     def self.registered(app)
       app.helpers do
-        # Calls the given block for every possible template file in views,
-        # named name.ext, where ext is registered on engine.
-        def find_template(views, name, engine, &block)
-          super(VIEW_PATH, name, engine, &block)
-          super
+        def sidekiq_status_template(name)
+          path = File.join(VIEW_PATH, name.to_s) + ".erb"
+          File.open(path).read
         end
       end
 
@@ -26,12 +24,12 @@ module SidekiqStatus
         pageidx = @current_page - 1
         @statuses = SidekiqStatus::Container.statuses(pageidx * @count, (pageidx + 1) * @count)
 
-        render(:slim, :statuses)
+        erb(sidekiq_status_template(:statuses))
       end
 
       app.get '/statuses/:jid' do
         @status = SidekiqStatus::Container.load(params[:jid])
-        render(:slim, :status)
+        erb(sidekiq_status_template(:status))
       end
 
       app.get '/statuses/:jid/kill' do

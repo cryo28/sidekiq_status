@@ -149,9 +149,11 @@ and clean status containers.
 
 ### 1.0.5
 
-   * Sidekiq 2.12 and 2.13 support
+   * Sidekiq 2.14 support
+   * Sidekiq web templates converted from .slim to .erb
    * Allow specifying worker name as a String (gumayunov)
    * Added ruby 2.0 to travis build matrix
+   * Don't be smart in extending Sinatra template search path (springbok)
 
 ### 1.0.4
 
@@ -159,7 +161,7 @@ and clean status containers.
 
 ### 1.0.3
 
-   * Include SidekiqStatus::Web app into Sidekiq::Web app unobtrusively (Peter Fern)
+   * Include SidekiqStatus::Web app into Sidekiq::Web app unobtrusively (pdf)
    * sidekiq 2.8.0 and 2.9.0 support
 
 ### 1.0.2

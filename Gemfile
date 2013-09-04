@@ -4,5 +4,6 @@ source 'https://rubygems.org'
 gemspec
 
 gem 'sidekiq', ENV['SIDEKIQ_VERSION'] if ENV['SIDEKIQ_VERSION']
+gem 'activesupport', '< 4.0.0' if RUBY_VERSION < '1.9.3'
 gem 'coveralls', require: false
 
