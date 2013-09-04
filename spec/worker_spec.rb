@@ -133,7 +133,8 @@ describe Sidekiq::Worker do
 
       worker_thread = Thread.new{ worker.perform(jid) }
       checker_thread = Thread.new do
-        wait{ container.reload.working? }
+        wait{ container.reload.working? && container.at == 50 }
+
         container.at.should      == 50
         container.total.should   == 200
         container.message.should == '25% done'
