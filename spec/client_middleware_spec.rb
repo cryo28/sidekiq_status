@@ -19,4 +19,11 @@ describe SidekiqStatus::ClientMiddleware do
       end
     end
   end
+
+  it "does not create container for scheduled job" do
+    SidekiqStatus::Container.should_not_receive(:create)
+
+    subject.call("TestWorker1", { "at" => Time.now }, nil) do
+    end
+  end
 end
