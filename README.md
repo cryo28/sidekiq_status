@@ -154,6 +154,8 @@ and clean status containers.
    * Allow specifying worker name as a String (gumayunov)
    * Added ruby 2.0 to travis build matrix
    * Don't be smart in extending Sinatra template search path (springbok)
+   * Show worker names and adjust sidekiq-web template tags to conform 
+     to Sidekiq conventions (mhfs)
 
 ### 1.0.4
 
