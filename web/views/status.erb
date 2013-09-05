@@ -1,10 +1,10 @@
-<h1 class="wi">
+<h3 class="wi">
   Job <%= @status.jid %> is <%= @status.status %> (<%= @status.pct_complete %>% done)
-</h1>
+</h3>
 <p class="intro"></p>
 
 <div id="status_<%= @status.jid %>" rel="<%= @status.status %>">
-  <h2>Details</h2>
+  <h4>Details</h4>
   <div>
     <table class="table table-striped table-bordered">
       <thead>
@@ -17,6 +17,10 @@
         <tr>
           <td>jid</td>
           <td><%= @status.jid %></td>
+        </tr>
+        <tr>
+          <td>worker</td>
+          <td><%= @status.worker %></td>
         </tr>
         <tr>
           <td>status</td>
