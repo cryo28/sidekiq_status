@@ -6,6 +6,9 @@ module SidekiqStatus
       worker = worker.constantize if worker.is_a?(String)
       return yield unless worker < SidekiqStatus::Worker
 
+      # Don't start reporting status if the job is scheduled for the future
+      return yield if item['at']
+
       jid  = item['jid']
       args = item['args']
       item['args'] = [jid]
