@@ -150,10 +150,13 @@ and clean status containers.
 ### 1.0.5
 
    * Sidekiq 2.14 support
+   * Do not create (and display in sidekiq_status/web) status containers
+     for the jobs scheduled to run in the future
+     by the means of perform_at/perform_in (mhfs)
    * Sidekiq web templates converted from .slim to .erb
    * Allow specifying worker name as a String (gumayunov)
    * Added ruby 2.0 to travis build matrix
-   * Don't be smart in extending Sinatra template search path (springbok)
+   * Don't be too smart in extending Sinatra template search path (springbok)
    * Show worker names and adjust sidekiq-web template tags to conform 
      to Sidekiq conventions (mhfs)
 
@@ -183,8 +186,7 @@ and clean status containers.
 ## Roadmap
 
    * Add some sidekiq-web specs
-
-
+   * Support running inline with sidekiq/testing
 
 ## Contributing
 
