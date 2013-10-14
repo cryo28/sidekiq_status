@@ -147,6 +147,10 @@ and clean status containers.
 
 ## Changelog
 
+### 1.0.6
+
+   * Sidekiq 2.15 support
+
 ### 1.0.5
 
    * Sidekiq 2.14 support
