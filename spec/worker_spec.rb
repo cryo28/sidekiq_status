@@ -53,8 +53,7 @@ describe Sidekiq::Worker do
       worker.stub(:some_method).and_raise(exc)
 
       jid = SomeWorker.perform_async(*args)
-
-      expect{ worker.perform(jid) }.to raise_exception(exc)
+      expect{ worker.perform(jid) }.to raise_exception{ |error| error.object_id.should == exc.object_id }
 
       container = SidekiqStatus::Container.load(jid)
       container.status.should == 'failed'
