@@ -20,3 +20,5 @@ env:
     - SIDEKIQ_VERSION="~>2.16.0"
     - SIDEKIQ_VERSION="~>2.17.0"
 script: bundle exec rake
+services:
+  - redis-server
