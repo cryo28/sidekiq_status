@@ -3,6 +3,7 @@ rvm:
   - 1.9.2
   - 1.9.3
   - 2.0.0
+  - 2.1.1
 #  - jruby-19mode # JRuby in 1.9 mode
 #  - rbx-19mode
 env:
@@ -14,11 +15,10 @@ env:
     - SIDEKIQ_VERSION="~>2.8.0"
     - SIDEKIQ_VERSION="~>2.10.0"
     - SIDEKIQ_VERSION="~>2.12.0"
-    - SIDEKIQ_VERSION="~>2.13.0"
     - SIDEKIQ_VERSION="~>2.14.0"
     - SIDEKIQ_VERSION="~>2.15.0"
     - SIDEKIQ_VERSION="~>2.16.0"
-    - SIDEKIQ_VERSION="~>2.17.0"
+    - SIDEKIQ_VERSION="~>2.17.7"
 script: bundle exec rake
 services:
   - redis-server
