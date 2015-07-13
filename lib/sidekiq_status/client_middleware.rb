@@ -2,7 +2,7 @@
 
 module SidekiqStatus
   class ClientMiddleware
-    def call(worker, item, queue)
+    def call(worker, item, queue, redis_pool=nil)
       worker = worker.constantize if worker.is_a?(String)
       return yield unless worker < SidekiqStatus::Worker
 
@@ -21,8 +21,16 @@ module SidekiqStatus
       # job is due to run.
       return yield if item['at']
 
+
       jid  = item['jid']
       args = item['args']
+
+      # If the args value is equal to [ jid ], this is most likely a retry for a failed job
+      # We reload the original job arguments, so these are not lost
+      if args == Array(jid)
+        args = SidekiqStatus::Container.load(jid).args
+      end
+
       item['args'] = [jid]
 
       SidekiqStatus::Container.create(
