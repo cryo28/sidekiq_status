@@ -2,7 +2,7 @@
 
 module SidekiqStatus
   class ClientMiddleware
-    def call(worker, item, queue)
+    def call(worker, item, queue, redis_pool = nil)
       worker = worker.constantize if worker.is_a?(String)
       return yield unless worker < SidekiqStatus::Worker
 

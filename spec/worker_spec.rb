@@ -44,7 +44,7 @@ describe Sidekiq::Worker do
       jid = SomeWorker.perform_async(*args)
       worker.perform(jid)
 
-      has_been_run.should be_true
+      has_been_run.should be true
       worker.status_container.reload.status.should == 'complete'
     end
 

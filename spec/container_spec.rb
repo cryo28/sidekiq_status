@@ -102,7 +102,7 @@ describe SidekiqStatus::Container do
     test_container(container, described_class::DEFAULTS.reject{|k, v| k == 'args' }, jid)
 
     Sidekiq.redis do |conn|
-      conn.exists(status_key).should be_true
+      conn.exists(status_key).should be true
     end
   end
 
@@ -112,7 +112,7 @@ describe SidekiqStatus::Container do
     end
 
     it "loads a container from the redis key" do
-      json = MultiJson.dump(sample_json_hash)
+      json = Sidekiq.dump_json(sample_json_hash)
       Sidekiq.redis { |conn| conn.set(status_key, json) }
 
       container = described_class.load(jid)
@@ -128,7 +128,7 @@ describe SidekiqStatus::Container do
         )
       end
 
-      json = MultiJson.dump(sample_json_hash)
+      json = Sidekiq.dump_json(sample_json_hash)
       Sidekiq.redis { |conn| conn.set(status_key, json) }
       described_class.load(jid)
 
@@ -151,7 +151,7 @@ describe SidekiqStatus::Container do
     described_class.new(jid, hash).save
 
     result = Sidekiq.redis{ |conn| conn.get(status_key) }
-    result = MultiJson.load(result)
+    result = Sidekiq.load_json(result)
 
     result.should == hash.merge('last_updated_at' => Time.now.to_i)
 
@@ -168,14 +168,14 @@ describe SidekiqStatus::Container do
     container.delete
 
     Sidekiq.redis do |conn|
-      conn.exists(status_key).should be_false
+      conn.exists(status_key).should be false
       conn.zscore(described_class.kill_key, jid).should be_nil
     end
   end
 
   specify "#request_kill, #should_kill?, #killable?" do
     container = described_class.new(jid)
-    container.kill_requested?.should be_false
+    container.kill_requested?.should be_falsey
     container.should be_killable
 
     Sidekiq.redis do |conn|
@@ -302,10 +302,10 @@ describe SidekiqStatus::Container do
       context "status is #{status_name1}" do
         subject{ described_class.create().tap{|c| c.status = status_name1} }
 
-        its("#{status_name1}?") { should be_true }
+        its("#{status_name1}?") { should be true }
 
         (described_class::STATUS_NAMES - [status_name1]).each do |status_name2|
-          its("#{status_name2}?") { should be_false }
+          its("#{status_name2}?") { should be false }
         end
       end
     end
