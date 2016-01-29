@@ -1,24 +1,24 @@
 language: ruby
 rvm:
-  - 1.9.2
-  - 1.9.3
-  - 2.0.0
-  - 2.1.1
-#  - jruby-19mode # JRuby in 1.9 mode
-#  - rbx-19mode
+  - 2.1.4
+  - 2.2.4
+  - 2.3.0
 env:
   global:
     - SHOW_SIDEKIQ=true
   matrix:
-    - SIDEKIQ_VERSION="~>2.4.0"
-    - SIDEKIQ_VERSION="~>2.6.5"
-    - SIDEKIQ_VERSION="~>2.8.0"
-    - SIDEKIQ_VERSION="~>2.10.0"
-    - SIDEKIQ_VERSION="~>2.12.0"
-    - SIDEKIQ_VERSION="~>2.14.0"
-    - SIDEKIQ_VERSION="~>2.15.0"
-    - SIDEKIQ_VERSION="~>2.16.0"
-    - SIDEKIQ_VERSION="~>2.17.7"
+    - SIDEKIQ_VERSION="~>4.1.0"
+    - SIDEKIQ_VERSION="~>4.0.2"
+    - SIDEKIQ_VERSION="~>3.5.4"
+    - SIDEKIQ_VERSION="~>3.4.2"
+    - SIDEKIQ_VERSION="~>3.3.4"
+
+before_install:
+  - gem update --system
+  - gem update bundler
+  - gem --version
+  - bundle --version
+
 script: bundle exec rake
 services:
   - redis-server

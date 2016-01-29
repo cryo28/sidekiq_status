@@ -13,6 +13,7 @@ end
 require 'coveralls'
 Coveralls.wear!
 
+require 'rspec/its'
 require 'sidekiq_status'
 require 'sidekiq/util'
 
