@@ -27,7 +27,7 @@ describe Sidekiq::Worker do
     let(:worker) { SomeWorker.new }
 
     it "receives jid as parameters, loads container and runs original perform with enqueued args" do
-      worker.should_receive(:some_method).with(*args)
+      expect(worker).to receive(:some_method).with(*args)
       jid = SomeWorker.perform_async(*args)
       worker.perform(jid)
     end
@@ -50,7 +50,7 @@ describe Sidekiq::Worker do
 
     it "intercepts failures and set status to 'failed' then re-raises the exception" do
       exc = RuntimeError.new('Some error')
-      worker.stub(:some_method).and_raise(exc)
+      allow(worker).to receive(:some_method).and_raise(exc)
 
       jid = SomeWorker.perform_async(*args)
       expect{ worker.perform(jid) }.to raise_exception{ |error| error.object_id.should == exc.object_id }
