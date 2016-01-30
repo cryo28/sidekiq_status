@@ -5,7 +5,7 @@ describe SidekiqStatus::ClientMiddleware do
   describe "cryo28/sidekiq_status#11 regression" do
     describe "#call" do
       before do
-        SidekiqStatus::Container.should_receive(:create).with(hash_including('worker' => 'TestWorker1'))
+        expect(SidekiqStatus::Container).to receive(:create).with(hash_including('worker' => 'TestWorker1'))
       end
 
       it "accepts a worker class" do
@@ -21,7 +21,7 @@ describe SidekiqStatus::ClientMiddleware do
   end
 
   it "does not create container for scheduled job" do
-    SidekiqStatus::Container.should_not_receive(:create)
+    expect(SidekiqStatus::Container).to_not receive(:create)
 
     subject.call("TestWorker1", { "at" => Time.now }, nil) do
     end

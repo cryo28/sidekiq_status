@@ -25,6 +25,10 @@ Sidekiq.logger.level = Logger::ERROR
 require GEM_ROOT.join('spec/dummy/boot.rb')
 
 RSpec.configure do |c|
+  c.expect_with :rspec do |expectations|
+    expectations.syntax = [:should, :expect]
+  end
+
   c.before do
     Sidekiq.redis{ |conn| conn.flushdb }
   end

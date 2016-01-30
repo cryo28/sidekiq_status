@@ -152,6 +152,7 @@ and clean status containers.
   * Support for sidekiq 4.1, 4.0, 3.5, 3.4
   * Dropped support for sidekiq versions older than 3.3
   * Dropped support for ruby 1.9.x, 2.0.x
+  * Experimental support for Rubinius
 
 
 ### 1.0.7

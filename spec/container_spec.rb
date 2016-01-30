@@ -91,7 +91,7 @@ describe SidekiqStatus::Container do
   end
 
   specify ".create" do
-    SecureRandom.should_receive(:hex).with(12).and_return(jid)
+    expect(SecureRandom).to receive(:hex).with(12).and_return(jid)
     args = ['arg1', 'arg2', {arg3: 'val3'}]
 
     container = described_class.create('args' => args)
