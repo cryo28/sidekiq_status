@@ -14,13 +14,13 @@ module SidekiqStatus
     end
 
     module Prepending
-      def perform(jid)
+      def perform(*args)
         @status_container = SidekiqStatus::Container.load(jid)
 
         begin
           catch(:killed) do
             set_status('working')
-            super(*@status_container.args)
+            super(*args)
             set_status('complete')
           end
         rescue Exception => exc

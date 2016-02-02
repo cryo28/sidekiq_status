@@ -26,10 +26,11 @@ describe Sidekiq::Worker do
   describe "#perform (Worker context)" do
     let(:worker) { SomeWorker.new }
 
-    it "receives jid as parameters, loads container and runs original perform with enqueued args" do
+    it "loads container using @jid and runs original perform" do
       expect(worker).to receive(:some_method).with(*args)
       jid = SomeWorker.perform_async(*args)
-      worker.perform(jid)
+      worker.jid = jid.freeze
+      worker.perform(*args)
     end
 
     it "changes status to working" do
@@ -42,7 +43,8 @@ describe Sidekiq::Worker do
       end)
 
       jid = SomeWorker.perform_async(*args)
-      worker.perform(jid)
+      worker.jid = jid.freeze
+      worker.perform(*args)
 
       has_been_run.should be true
       worker.status_container.reload.status.should == 'complete'
@@ -53,7 +55,8 @@ describe Sidekiq::Worker do
       allow(worker).to receive(:some_method).and_raise(exc)
 
       jid = SomeWorker.perform_async(*args)
-      expect{ worker.perform(jid) }.to raise_exception{ |error| error.object_id.should == exc.object_id }
+      worker.jid = jid.freeze
+      expect{ worker.perform(*args) }.to raise_exception{ |error| error.object_id.should == exc.object_id }
 
       container = SidekiqStatus::Container.load(jid)
       container.status.should == 'failed'
@@ -61,7 +64,8 @@ describe Sidekiq::Worker do
 
     it "sets status to 'complete' if finishes without errors" do
       jid = SomeWorker.perform_async(*args)
-      worker.perform(jid)
+      worker.jid = jid.freeze
+      worker.perform(*args)
 
       container = SidekiqStatus::Container.load(jid)
       container.status.should == 'complete'
@@ -69,10 +73,12 @@ describe Sidekiq::Worker do
 
     it "handles kill requests if kill requested before job execution" do
       jid = SomeWorker.perform_async(*args)
+      worker.jid = jid.freeze
+
       container = SidekiqStatus::Container.load(jid)
       container.request_kill
 
-      worker.perform(jid)
+      worker.perform(*args)
 
       container.reload
       container.status.should == 'killed'
@@ -80,6 +86,8 @@ describe Sidekiq::Worker do
 
     it "handles kill requests if kill requested amid job execution" do
       jid = SomeWorker.perform_async(*args)
+      worker.jid = jid.freeze
+
       container = SidekiqStatus::Container.load(jid)
       container.status.should == 'waiting'
 
@@ -117,6 +125,8 @@ describe Sidekiq::Worker do
 
     it "allows to set at, total and customer payload from the worker" do
       jid = SomeWorker.perform_async(*args)
+      worker.jid = jid.freeze
+
       container = SidekiqStatus::Container.load(jid)
 
       lets_stop = false

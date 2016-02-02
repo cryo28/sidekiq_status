@@ -156,7 +156,7 @@ module SidekiqStatus
     # @param [Array<#to_s>] jids a list of job identifiers to load data for
     # @return [Hash{String => Hash}] A hash of job-id to deserialized data pairs
     def self.load_data_multi(jids)
-      keys = jids.map { |jid| status_key(jid) }
+      keys = jids.map(&method(:status_key))
 
       return {} if keys.empty?
 

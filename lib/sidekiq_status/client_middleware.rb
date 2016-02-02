@@ -23,7 +23,6 @@ module SidekiqStatus
 
       jid  = item['jid']
       args = item['args']
-      item['args'] = [jid]
 
       SidekiqStatus::Container.create(
           'jid'    => jid,
