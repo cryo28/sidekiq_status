@@ -309,6 +309,26 @@ module SidekiqStatus
       save
     end
 
+    # Return the correct progress-bar class to use for bootstrap, based off the status
+    # This is used in both web/view/status.erb and web/view/statuses.erb
+    def progress_bar_class
+      bar_class = ''
+      if waiting?
+        bar_class = 'progress-bar-info'
+      elsif working?
+        bar_class = 'progress-bar-striped active'
+      elsif complete? && pct_complete != 100
+        bar_class = 'progress-bar-warning'
+      elsif killed?
+        bar_class = 'progress-bar-warning'
+      elsif complete?
+        bar_class = 'progress-bar-success'
+      elsif failed?
+        bar_class = 'progress-bar-danger'
+      end
+      bar_class
+    end
+
     STATUS_NAMES.each do |status_name|
       define_method("#{status_name}?") do
         status == status_name
