@@ -24,11 +24,13 @@ module SidekiqStatus
         pageidx = @current_page - 1
         @statuses = SidekiqStatus::Container.statuses(pageidx * @count, (pageidx + 1) * @count)
 
+        erb(sidekiq_status_template('/shared/head'))
         erb(sidekiq_status_template(:statuses))
       end
 
       app.get '/statuses/:jid' do
         @status = SidekiqStatus::Container.load(params[:jid])
+        erb(sidekiq_status_template('/shared/head'))
         erb(sidekiq_status_template(:status))
       end
 
