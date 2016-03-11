@@ -37,9 +37,14 @@
       <td><%= container.status %></td>
       <td><%= container.last_updated_at %></td>
       <td>
-        <div class="progress progress-striped" style="margin-bottom: 0">
-          <div class="bar" style="width: <%= container.pct_complete %>%; text-shadow: 1px 1px 1px black">
-            <%= container.pct_complete %>%
+        <div class="progress">
+          <div  class="progress-bar <%= container.progress_bar_class %>"
+                role="progressbar"
+                aria-valuenow="<%= container.pct_complete %>"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                style="width: <%= container.pct_complete %>%; min-width: 2em;">
+            <strong><%= container.pct_complete %>%</strong>
           </div>
         </div>
       <td><%= container.message %></td>
