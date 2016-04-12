@@ -150,6 +150,9 @@ and clean status containers.
 ### 1.1.0
 
   * Support for sidekiq 4.1, 4.0, 3.5, 3.4
+  * No more replacement of original job arguments with generated unique jid. 
+    This is not needed anymore as Sidekiq started to do it. 
+    This change should make integration with other middlewares easier.
   * Dropped support for sidekiq versions older than 3.3
   * Dropped support for ruby 1.9.x, 2.0.x
   * Experimental support for Rubinius
