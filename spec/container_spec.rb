@@ -220,7 +220,16 @@ describe SidekiqStatus::Container do
     container.at = 5
     container.total = 200
     container.pct_complete.should == 3 # 2.5.round(0) => 3
+
+    container.at = Float::INFINITY
+    container.pct_complete.should == 0 # FloatDomainError
+
+    container.at = 5
+    container.total = 0
+    container.pct_complete.should == 0 # ZeroDivisionError
   end
+
+  
 
   context "setters" do
     let(:container) { described_class.new(jid) }
