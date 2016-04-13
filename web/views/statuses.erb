@@ -25,7 +25,7 @@
     <th>Message</th>
     <th>Actions</th>
   </tr>
-  <% @statuses.each do |container| -%>
+  <% @statuses.each do |container| %>
     <tr>
       <td>
         <a href="<%= to(:statuses) %>/<%= container.jid %>">
@@ -44,19 +44,19 @@
         </div>
       <td><%= container.message %></td>
       <td>
-        <% if container.killable? -%>
+        <% if container.killable? %>
           <a class="kill" href="<%= to(:statuses) %>/<%= container.jid %>/kill" onclick="return confirm('Are you sure?')">Kill</a>
-        <% elsif container.kill_requested? -%>
+        <% elsif container.kill_requested? %>
           Kill requested
         <% end %>
       </td>
     </tr>
-  <% end -%>
-  <% if @statuses.empty? -%>
+  <% end %>
+  <% if @statuses.empty? %>
     <tr>
       <td colspan="6"></td>
     </tr>
-  <% end -%>
+  <% end %>
 </table>
 
 
