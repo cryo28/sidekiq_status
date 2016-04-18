@@ -24,7 +24,19 @@
         </tr>
         <tr>
           <td>status</td>
-          <td><%= @status.status %></td>
+          <td>
+            <div class="pull-left"><%= @status.status %></div>
+              <div class="progress pull-right" style="width: 90%; margin-bottom: 0;">
+                <div  class="progress-bar <%= @status.progress_bar_class %>"
+                      role="progressbar"
+                      aria-valuenow="<%= @status.pct_complete %>"
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                      style="width: <%= @status.pct_complete %>%; min-width: 2em;">
+                  <strong><%= @status.pct_complete %>%</strong>
+                </div>
+              </div>
+          </td>
         </tr>
         <tr>
           <td>last updated at</td>
