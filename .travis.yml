@@ -8,6 +8,7 @@ env:
   global:
     - SHOW_SIDEKIQ=true
   matrix:
+    - SIDEKIQ_VERSION="~>4.2.0"
     - SIDEKIQ_VERSION="~>4.1.0"
     - SIDEKIQ_VERSION="~>4.0.2"
     - SIDEKIQ_VERSION="~>3.5.4"
