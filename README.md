@@ -147,6 +147,10 @@ and clean status containers.
 
 ## Changelog
 
+### 1.2.0
+
+  * Support for sidekiq 4.2, integration with the new non-sinatra-based Sidekiq::Web (ncuesta)
+
 ### 1.1.0
 
   * Support for sidekiq 4.1, 4.0, 3.5, 3.4
