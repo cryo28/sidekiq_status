@@ -1,9 +1,8 @@
 language: ruby
 rvm:
-  - 2.1.10
-  - 2.2.4
-  - 2.3.0
-  - rbx-3.14
+  #- rbx
+  - 2.2.5
+  - 2.3.1
 env:
   global:
     - SHOW_SIDEKIQ=true
@@ -13,7 +12,6 @@ env:
     - SIDEKIQ_VERSION="~>4.0.2"
     - SIDEKIQ_VERSION="~>3.5.4"
     - SIDEKIQ_VERSION="~>3.4.2"
-    - SIDEKIQ_VERSION="~>3.3.4"
 
 before_install:
   - sudo apt-get -qq update
