@@ -2,15 +2,15 @@
 
 <div class="delete_jobs">
   Delete jobs in&nbsp;
-  <a href="<%= to(:statuses) %>/delete/complete" onclick="return confirm('Are you sure? Delete is irreversible')">
+  <a href="<%= root_path %>statuses/delete/complete" onclick="return confirm('Are you sure? Delete is irreversible')">
     complete
   </a>
   ,&nbsp;
-  <a href="<%= to(:statuses) %>/delete/finished" onclick="return confirm('Are you sure? Delete is irreversible')" title="<%= SidekiqStatus::Container::FINISHED_STATUS_NAMES.join(', ') %>">
+  <a href="<%= root_path %>statuses/delete/finished" onclick="return confirm('Are you sure? Delete is irreversible')" title="<%= SidekiqStatus::Container::FINISHED_STATUS_NAMES.join(', ') %>">
     finished
   </a>
   ,&nbsp;
-  <a href="<%= to(:statuses) %>/delete/all"      onclick="return confirm('Are you sure? Delete is irreversible')">
+  <a href="<%= root_path %>statuses/delete/all"      onclick="return confirm('Are you sure? Delete is irreversible')">
     all
   </a>
   &nbsp;statuses
@@ -28,7 +28,7 @@
   <% @statuses.each do |container| %>
     <tr>
       <td>
-        <a href="<%= to(:statuses) %>/<%= container.jid %>">
+        <a href="<%= root_path %>/statuses/<%= container.jid %>">
           <%= container.worker %>
           <br />
           <%= container.jid %>
@@ -45,7 +45,7 @@
       <td><%= container.message %></td>
       <td>
         <% if container.killable? %>
-          <a class="kill" href="<%= to(:statuses) %>/<%= container.jid %>/kill" onclick="return confirm('Are you sure?')">Kill</a>
+          <a class="kill" href="<%= root_path %>statuses/<%= container.jid %>/kill" onclick="return confirm('Are you sure?')">Kill</a>
         <% elsif container.kill_requested? %>
           Kill requested
         <% end %>
