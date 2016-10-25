@@ -11,6 +11,16 @@ module SidekiqStatus
           path = File.join(VIEW_PATH, name.to_s) + ".erb"
           File.open(path).read
         end
+
+        def redirect_to(subpath)
+          if respond_to?(:to)
+            # Sinatra-based web UI
+            redirect to(subpath)
+          else
+            # Non-Sinatra based web UI (Sidekiq 4.2+)
+            redirect "#{root_path}#{subpath}"
+          end
+        end
       end
 
       app.get '/statuses' do
@@ -34,22 +44,22 @@ module SidekiqStatus
 
       app.get '/statuses/:jid/kill' do
         SidekiqStatus::Container.load(params[:jid]).request_kill
-        redirect to(:statuses)
+        redirect_to :statuses
       end
 
       app.get '/statuses/delete/all' do
         SidekiqStatus::Container.delete
-        redirect to(:statuses)
+        redirect_to :statuses
       end
 
       app.get '/statuses/delete/complete' do
         SidekiqStatus::Container.delete('complete')
-        redirect to(:statuses)
+        redirect_to :statuses
       end
 
       app.get '/statuses/delete/finished' do
         SidekiqStatus::Container.delete(SidekiqStatus::Container::FINISHED_STATUS_NAMES)
-        redirect to(:statuses)
+        redirect_to :statuses
       end
     end
   end
