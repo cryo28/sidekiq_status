@@ -18,7 +18,7 @@ module SidekiqStatus
             redirect to(subpath)
           else
             # Non-Sinatra based web UI (Sidekiq 4.2+)
-            "#{root_path}#{subpath}"
+            redirect "#{root_path}#{subpath}"
           end
         end
       end
