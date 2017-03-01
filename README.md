@@ -63,9 +63,9 @@ class MyWorker
 
    def perform(arg1, arg2)
       objects = Array.new(200) { 'some_object_to_process' }
-      self.total= objects.count
+      self.total = objects.count
       objects.each_with_index do |object, index|
-        at(index, "Processing object #{index}")
+        at(index, "Processing object #{object}")
         object.process!
       end
    end
@@ -92,7 +92,7 @@ class MyWorker
 
    def perform(arg1, arg2)
       objects = Array.new(5) { |i| i }
-      self.total= objects.count
+      self.total = objects.count
       result = objects.inject([]) do |accum, object|
         accum << "result #{object}"
         accum
@@ -108,7 +108,7 @@ Then a client can fetch the result payload
 
 ```ruby
 container = SidekiqStatus::Container.load(jid)
-container.status  # => 'complete'
+container.status # => 'complete'
 container.payload # => ["result 0", "result 1", "result 2", "result 3", "result 4"]
 ```
 
