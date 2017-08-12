@@ -1,4 +1,5 @@
 # -*- encoding : utf-8 -*-
+require 'active_support/core_ext/class'
 
 # Sidekiq extension to track job execution statuses and returning job results back to the client in a convenient manner
 module SidekiqStatus
