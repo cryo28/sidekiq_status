@@ -210,6 +210,7 @@ module SidekiqStatus
         conn.multi do
           conn.setex(status_key, self.ttl, data)
           conn.zadd(self.class.statuses_key, Time.now.to_f.to_s, self.jid)
+          conn.publish("status_updates", self.jid)
         end
       end
     end
